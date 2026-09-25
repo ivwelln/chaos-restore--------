@@ -1,0 +1,12 @@
+=== START main 16:10:02 ===
+=== OK    main 16:12:32 ===
+=== START filters 16:12:32 ===
+=== OK    filters 16:15:01 ===
+=== START snr 16:15:01 ===
+=== OK    snr 16:26:09 ===
+=== START window 16:26:09 ===
+=== OK    window 16:35:34 ===
+=== START arch 16:35:34 ===
+=== OK    arch 17:43:20 ===
+=== ALL DONE 17:43:20 ===
+=== REGEN DONE 18:02:52 ===

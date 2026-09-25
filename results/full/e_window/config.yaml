@@ -1,0 +1,93 @@
+name: full
+seed: 42
+paths:
+  data: data
+  results: results
+lorenz:
+  sigma: 10.0
+  rho: 28.0
+  beta: 2.6666666666666665
+  dt: 0.01
+  transient: 20.0
+  duration: 4000.0
+  x0:
+  - 1.0
+  - 1.0
+  - 1.0
+  variable: x
+channel:
+  filter:
+    kind: butter
+    order: 4
+    fc: 3.0
+    ripple_db: 1.0
+  snr_db: 10.0
+  noise_seed: 0
+windows:
+  length: 256
+  stride_div: 4
+  infer_stride_div: 2
+split:
+  train_frac: 0.8
+  val_frac: 0.1
+train:
+  model: cae
+  lr: 0.001
+  batch_size: 64
+  max_epochs: 100
+  patience: 10
+  min_delta: 0.0
+  num_workers: 0
+  device: auto
+lyapunov:
+  subsample: 10
+  series_len: 6000
+  emb_dim: 8
+  lag: 2
+  min_tsep: 20
+  trajectory_len: 20
+  fit: poly
+baselines:
+  moving_average_grid:
+  - 3
+  - 5
+  - 7
+  - 9
+  - 13
+  - 17
+  - 21
+  - 31
+  - 41
+  - 61
+  savgol_window_grid:
+  - 7
+  - 11
+  - 15
+  - 21
+  - 31
+  - 41
+  - 61
+  - 81
+  savgol_polyorder_grid:
+  - 2
+  - 3
+  - 4
+  filtfilt_fc_grid:
+  - 1.0
+  - 1.5
+  - 2.0
+  - 2.5
+  - 3.0
+  - 4.0
+  - 5.0
+  - 6.0
+  wiener_lambda_grid:
+  - 1.0e-06
+  - 1.0e-05
+  - 0.0001
+  - 0.001
+  - 0.01
+  - 0.05
+  - 0.1
+  - 0.5
+  - 1.0
