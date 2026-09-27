@@ -76,6 +76,21 @@ def lyapunov(x: np.ndarray, dt: float, cfg: LyapunovCfg) -> float:
     )
 
 
+def crlb(sigma2: float, lam1: float, h: float, n):
+    """Граница Крамера–Рао для начального условия по N точкам: σ²(e^{2λ₁h} − 1) / (e^{2λ₁hN} − 1)."""
+    a = 2.0 * lam1 * h
+    n = np.asarray(n, dtype=np.float64)
+    # в логарифмах: e^{2λ₁hN} переполняет float64 уже при N ≈ 4·10⁴
+    bound = np.exp(np.log(sigma2) + np.log(np.expm1(a)) - a * n - np.log(-np.expm1(-a * n)))
+    return float(bound) if bound.ndim == 0 else bound
+
+
+def effective_n(mse: float, sigma2: float, lam1: float, h: float) -> float:
+    """N, при котором граница Крамера–Рао равна mse."""
+    a = 2.0 * lam1 * h
+    return float(np.log1p(sigma2 * np.expm1(a) / mse) / a)
+
+
 def evaluate(
     x_true: np.ndarray,
     x_hat: np.ndarray,

@@ -39,6 +39,10 @@ class Case:
         return self.cfg.windows.length
 
     @property
+    def noise_var(self) -> float:
+        return float(np.var(self.data.splits.test.slice(self.channel.noise)))
+
+    @property
     def variable(self) -> str:
         return self.cfg.lorenz.variable
 
@@ -116,7 +120,7 @@ def reference_rows(case: Case, with_lyap: bool = True) -> List[Dict[str, object]
     if with_lyap:
         row_clean["lyap"] = lyapunov(clean, case.dt, case.cfg.lyapunov)
     rows.append(row_clean)
-    rows.append(evaluate_signal(case, case.test_distorted(), "искажённый", with_lyap))
+    rows.append(evaluate_signal(case, case.data.splits.test.slice(case.data.distorted), "искажённый", with_lyap))
     return rows
 
 

@@ -72,7 +72,8 @@ def run(
         x_hat = restore_signal(model, case.data, case.data.splits.test, case.cfg)
 
         row_net = evaluate_signal(case, x_hat, "сеть", with_lyap=with_lyap)
-        row_in = evaluate_signal(case, case.test_distorted(), "искажённый", with_lyap=False)
+        distorted = case.data.splits.test.slice(case.data.distorted)
+        row_in = evaluate_signal(case, distorted, "искажённый", with_lyap=False)
         rows.append(
             {
                 "variant": variant.label,

@@ -140,7 +140,7 @@ def cmd_main(cfg: Config, args: argparse.Namespace) -> None:
 
 
 def cmd_exp(cfg: Config, args: argparse.Namespace) -> None:
-    from experiments import e_arch, e_filters, e_snr, e_window
+    from experiments import e_arch, e_crlb, e_filters, e_snr, e_window
 
     with_lyap = not args.no_lyap
     if args.which == "snr":
@@ -151,13 +151,15 @@ def cmd_exp(cfg: Config, args: argparse.Namespace) -> None:
         e_arch.run(cfg, models=args.models, seeds=args.seeds, with_lyap=with_lyap)
     elif args.which == "filters":
         e_filters.run(cfg, with_lyap=with_lyap)
+    elif args.which == "crlb":
+        e_crlb.run(cfg, lengths=args.lengths, models=args.models, with_lyap=with_lyap)
 
 
 def cmd_all(cfg: Config, args: argparse.Namespace) -> None:
     cmd_generate(cfg, args)
     cmd_distort(cfg, args)
     cmd_main(cfg, args)
-    for which in ("snr", "window", "arch", "filters"):
+    for which in ("snr", "window", "arch", "filters", "crlb"):
         args.which = which
         cmd_exp(cfg, args)
 
@@ -193,12 +195,11 @@ def build_parser() -> argparse.ArgumentParser:
         ("distort", "шаг 2: искажение сигнала"),
         ("main", "шаги 5-6: простые методы и автоэнкодер"),
         ("all", "прогнать всё подряд"),
-        ("test", "самопроверка модулей"),
     ):
         _add_common(sub.add_parser(name, help=help_text))
 
-    exp = _add_common(sub.add_parser("exp", help="шаги 7-10: дополнительные исследования"))
-    exp.add_argument("which", choices=["snr", "window", "arch", "filters"])
+    exp = _add_common(sub.add_parser("exp", help="шаги 7-11: дополнительные исследования"))
+    exp.add_argument("which", choices=["snr", "window", "arch", "filters", "crlb"])
     exp.add_argument("--snr", type=float, nargs="*", default=None, help="список SNR в дБ")
     exp.add_argument("--lengths", type=int, nargs="*", default=None, help="список длин окна")
     exp.add_argument("--models", nargs="*", default=None, help="список архитектур")
@@ -221,8 +222,6 @@ def main(argv: List[str] | None = None) -> int:
     for key, value in DEFAULTS.items():
         if not hasattr(args, key):
             setattr(args, key, value)
-    if args.command == "test":
-        return COMMANDS["test"](None, args) or 0
     cfg = build_config(args)
     print(f"[конфиг] прогон «{cfg.name}», результаты в {cfg.results_dir}")
     COMMANDS[args.command](cfg, args)

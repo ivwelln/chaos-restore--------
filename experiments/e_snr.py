@@ -37,7 +37,8 @@ def run(
             print(f"\n===== SNR = {snr:g} дБ =====")
         case = build_case(cfg.copy_with(**{"channel.snr_db": snr}), verbose=verbose)
 
-        rows.append({**evaluate_signal(case, case.test_distorted(), "искажённый", with_lyap), "snr_db": snr})
+        distorted = case.data.splits.test.slice(case.data.distorted)
+        rows.append({**evaluate_signal(case, distorted, "искажённый", with_lyap), "snr_db": snr})
         base_rows, _, _ = run_baselines(case, with_lyap=with_lyap, verbose=verbose)
         rows += [{**r, "snr_db": snr} for r in base_rows]
         net_row, _, _ = run_network(

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Dict, Iterable, Optional, Sequence
+from typing import Dict, Iterable, Optional, Sequence, Tuple
 
 import matplotlib
 
@@ -241,6 +241,34 @@ def plot_curves(
         ax.legend(ncols=3, loc="upper center", bbox_to_anchor=(0.5, -0.16))
     else:
         ax.legend()
+    return _save(fig, path)
+
+
+def plot_crlb(
+    n: np.ndarray,
+    bound: np.ndarray,
+    points: Dict[str, Tuple[Sequence[float], Sequence[float]]],
+    path: Path,
+    title: str = "",
+    reference: Optional[float] = None,
+    reference_label: str = "",
+) -> Path:
+    fig, ax = plt.subplots(figsize=(6.8, 4.2))
+    ax.plot(n, bound, color=COLORS["accent"], lw=1.6, label="граница Крамера–Рао")
+    for i, (name, (x, y)) in enumerate(points.items()):
+        ax.plot(x, y, marker="o", ms=4.5, lw=1.0, label=name, color=plt.cm.tab10(i % 10))
+    if reference is not None:
+        ax.axhline(reference, color=COLORS["baseline"], ls="--", lw=1.2, label=reference_label)
+    ax.set_xscale("log", base=2)
+    ax.set_yscale("log")
+    ax.set_xticks(sorted({int(v) for x, _ in points.values() for v in x}))
+    ax.xaxis.set_minor_locator(matplotlib.ticker.NullLocator())
+    ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
+    ax.set_xlabel("длина окна N, отсчётов")
+    ax.set_ylabel("MSE")
+    if title:
+        ax.set_title(title)
+    ax.legend(loc="lower left")
     return _save(fig, path)
 
 

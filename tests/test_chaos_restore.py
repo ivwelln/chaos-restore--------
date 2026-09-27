@@ -14,7 +14,7 @@ from chaos_restore.channel import apply_channel, design_filter, lowpass
 from chaos_restore.config import load_config
 from chaos_restore.datasets import Normalizer, make_splits, prepare
 from chaos_restore.lorenz import simulate
-from chaos_restore.metrics import first_minimum_lag, lyapunov, nrmse
+from chaos_restore.metrics import crlb, effective_n, first_minimum_lag, lyapunov, nrmse
 from chaos_restore.windows import check_roundtrip, frame_signal, overlap_add
 
 TOL_MACHINE = 1e-9
@@ -175,6 +175,16 @@ def test_signal_variable_is_switchable():
         expected = case.signal.series(name)
         assert np.array_equal(case.data.clean, expected), f"переменная {name} не доехала до данных"
         assert case.variable == name
+
+
+def test_crlb_formula():
+    sigma2, lam1, h = 4.0, 0.906, 0.01
+    assert abs(crlb(sigma2, lam1, h, 1) - sigma2) < 1e-12
+    direct = sigma2 * (np.exp(2 * lam1 * h) - 1) / (np.exp(2 * lam1 * h * 256) - 1)
+    assert abs(crlb(sigma2, lam1, h, 256) / direct - 1) < 1e-10
+    bounds = crlb(sigma2, lam1, h, np.array([1, 16, 256, 100000]))
+    assert np.all(np.isfinite(bounds)) and np.all(np.diff(bounds) <= 0) and bounds[-1] >= 0
+    assert abs(effective_n(crlb(sigma2, lam1, h, 64), sigma2, lam1, h) - 64) < 1e-6
 
 
 def test_unknown_config_key_is_rejected():
